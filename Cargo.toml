@@ -1,0 +1,30 @@
+[package]
+name = "tt-crypto-primitives"
+version = "0.1.0"
+edition = "2021"
+authors = ["Pattermesh <pattermesh@gmail.com>", "Abhishek Krishna <abhishek@kcolbchain.com>"]
+description = "Blockchain crypto primitives optimized for RISC-V with Tenstorrent hardware acceleration"
+repository = "https://github.com/kcolbchain/tt-crypto-primitives"
+license = "Apache-2.0"
+keywords = ["risc-v", "crypto", "blockchain", "fhe", "tenstorrent"]
+categories = ["cryptography", "no-std"]
+
+[features]
+default = ["std"]
+std = []
+# Enable RISC-V Zkn scalar crypto instructions (AES, SHA via hardware)
+riscv-zkn = []
+# Enable RISC-V Zvk* vector crypto instructions
+riscv-zvk = []
+# Enable Tenstorrent TT-Metalium offload (Phase 2+)
+tenstorrent = ["std"]
+
+[dependencies]
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+hex = "0.4"
+
+[[bench]]
+name = "crypto_benchmarks"
+harness = false
