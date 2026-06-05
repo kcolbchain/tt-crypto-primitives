@@ -11,8 +11,30 @@ Blockchain crypto primitives optimized for RISC-V, targeting Tenstorrent hardwar
 | Keccak-256 | Ethereum's hash (addresses, txns, Merkle) | Zbb (bit manipulation) | Implemented |
 | SHA-256 | Bitcoin, Merkle trees, integrity | Zknh (hardware SHA) | Implemented |
 | ECDSA secp256k1 | Ethereum transaction signing | Zbb + software | Planned |
-| NTT/iNTT | ZK proof generation | Vector + Tensix offload | Planned |
-| Polynomial multiply | FHE bootstrapping | Tensix matrix engine | Planned |
+| NTT/iNTT | ZK proof generation | Vector + Tensix offload | Implemented |
+| Polynomial multiply | FHE bootstrapping | Tensix matrix engine | Implemented |
+
+## NTT Polynomial Multiplication
+
+The `ntt` module implements a 256-point Number Theoretic Transform over
+`q = 3329` using Kyber's primitive root `17`.
+
+```rust
+use tt_crypto_primitives::{multiply_polynomials, Polynomial};
+
+let lhs: Polynomial = [1; 256];
+let rhs: Polynomial = [2; 256];
+let product = multiply_polynomials(&lhs, &rhs);
+```
+
+The helper multiplies polynomials in the cyclic ring `Zq[x] / (x^256 - 1)`.
+It includes:
+
+- `forward_ntt` and `inverse_ntt` for coefficient/evaluation conversion
+- `multiply_polynomials` for NTT-based multiplication
+- `multiply_polynomials_naive` as an O(n^2) reference implementation
+- tests for Kyber reference root properties and zeta generation, inverse round
+  trips, sparse basis multiplication, and NTT-vs-naive multiplication
 
 ## Feature Flags
 
@@ -34,7 +56,17 @@ tt-crypto-primitives = { version = "0.1", features = ["riscv-zkn"] }
 cargo bench
 ```
 
-Benchmarks use [Criterion](https://github.com/bheisler/criterion.rs) and test across input sizes (32B to 4KB).
+Benchmarks use [Criterion](https://github.com/bheisler/criterion.rs) and test
+hash inputs across 32B to 4KB, plus NTT polynomial multiplication against the
+naive O(n^2) baseline.
+
+## Validation
+
+```bash
+cargo test
+cargo test --no-default-features
+cargo bench
+```
 
 ## Cross-compilation for RISC-V
 

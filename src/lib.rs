@@ -19,9 +19,17 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+#[cfg(not(feature = "std"))]
+extern crate alloc;
+
 pub mod keccak;
+pub mod ntt;
 pub mod sha256;
 
 /// Re-export hash functions at crate root
 pub use keccak::keccak256;
+pub use ntt::{
+    forward_ntt, inverse_ntt, multiply_polynomials, multiply_polynomials_naive, Polynomial, N, Q,
+    ROOT,
+};
 pub use sha256::sha256;
