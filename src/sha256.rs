@@ -3,6 +3,11 @@
 //! When compiled with `riscv-zkn`, uses Zknh instructions for round
 //! compression (sha256sum0, sha256sum1, sha256sig0, sha256sig1).
 
+#[cfg(not(feature = "std"))]
+use alloc::vec::Vec;
+#[cfg(feature = "std")]
+use std::vec::Vec;
+
 const K: [u32; 64] = [
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
     0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
@@ -35,7 +40,7 @@ pub fn sha256(input: &[u8]) -> [u8; 32] {
     let bit_len = (input.len() as u64) * 8;
 
     // Pre-processing: pad to 512-bit blocks
-    let mut padded = input.to_vec();
+    let mut padded = Vec::from(input);
     padded.push(0x80);
     while (padded.len() % 64) != 56 {
         padded.push(0x00);
